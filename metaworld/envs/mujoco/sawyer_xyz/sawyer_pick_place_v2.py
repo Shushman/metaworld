@@ -166,7 +166,7 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
         tcp = (finger_right + finger_left) / 2
         obj = obs[3:6]
         target = self._state_goal
-        _TARGET_RADIUS_GRASP = 0.03
+        _TARGET_RADIUS_GRASP = 0.07
         _TARGET_RADIUS = 0.07
         tcp_to_obj = np.linalg.norm(obj - tcp)
         grasp = reward_utils.tolerance(tcp_to_obj,

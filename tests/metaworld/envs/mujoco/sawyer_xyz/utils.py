@@ -18,11 +18,13 @@ def trajectory_summary(env, policy, act_noise_pct, render=False, end_on_success=
     success = False
     first_success = 0
     rewards = []
+    successes = []
 
     for t, (r, done, info) in enumerate(trajectory_generator(env, policy, act_noise_pct, render)):
         rewards.append(r)
 
         success |= bool(info['success'])
+        successes.append(info['success'])
         if not success:
             first_success = t
         if (success or done) and end_on_success:
@@ -31,7 +33,7 @@ def trajectory_summary(env, policy, act_noise_pct, render=False, end_on_success=
     rewards = np.array(rewards)
     returns = np.cumsum(rewards)
 
-    return success, rewards, returns, first_success
+    return success, rewards, returns, successes
 
 
 def trajectory_generator(env, policy, act_noise_pct, render=False):
