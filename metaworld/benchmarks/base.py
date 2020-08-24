@@ -2,12 +2,12 @@
 class Benchmark:
 
     @classmethod
-    def get_train_tasks(cls, sample_all=False):
-        return cls(env_type='train', sample_all=sample_all)
+    def get_train_tasks(cls, seed=None, sample_all=False):
+        return cls(seed=seed, env_type='train', sample_all=sample_all)
     
     @classmethod
-    def get_test_tasks(cls, sample_all=False):
-        return cls(env_type='test', sample_all=sample_all)
+    def get_test_tasks(cls, seed=None, sample_all=False):
+        return cls(seed=seed, env_type='test', sample_all=sample_all)
 
     @classmethod
     def from_task(cls, task_name):

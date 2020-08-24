@@ -122,6 +122,7 @@ class SawyerXYZEnv(SawyerMocapBase, metaclass=abc.ABCMeta):
         self.discrete_goals = goals
         # update the goal_space to a Discrete space
         self.discrete_goal_space = Discrete(len(self.discrete_goals))
+        self.discrete_goal_space.np_random = self.np_random
 
     # Belows are methods for using the new wrappers.
     # `sample_goals` is implmented across the sawyer_xyz

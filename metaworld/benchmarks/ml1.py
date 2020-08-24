@@ -21,12 +21,10 @@ class ML1(MultiClassMultiTaskEnv, Benchmark):
         super().__init__(
             task_env_cls_dict=cls_dict,
             task_args_kwargs=args_kwargs,
+            seed = seed,
             sample_goals=True,
             obs_type='plain',
             sample_all=sample_all)
-
-        # SC: Set active env seed first for sampling goals!
-        self.active_env.goal_space.seed(seed)
 
         goals = self.active_env.sample_goals_(n_goals)
         self.discretize_goal_space({task_name: goals})

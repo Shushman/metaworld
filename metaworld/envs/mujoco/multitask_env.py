@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import gym
 from gym.spaces import Box
+from gym.utils import seeding
 import numpy as np
 
 from metaworld.envs.mujoco.env_dict import _NUM_METAWORLD_ENVS
@@ -17,6 +18,7 @@ class MultiClassMultiTaskEnv(gym.Env):
     def __init__(self,
                  task_env_cls_dict,
                  task_args_kwargs,
+                 seed=None,
                  sample_all=True,
                  sample_goals=False,
                  obs_type='plain'):
@@ -31,11 +33,14 @@ class MultiClassMultiTaskEnv(gym.Env):
         self._sample_goals = sample_goals
         self._obs_type = obs_type
 
+
+
         # hardcoded so we don't have to iterate over all envs and check the maximum
         # this is the maximum observation dimension after augmenting observation
         # e.g. adding goal
         self._max_obs_dim = 12
         self._env_discrete_index = {}
+        sd_idx = 0
         for task, env_cls in task_env_cls_dict.items():
             task_args = task_args_kwargs[task]['args']
             task_kwargs = deepcopy(task_args_kwargs[task]['kwargs'])
@@ -43,8 +48,12 @@ class MultiClassMultiTaskEnv(gym.Env):
             del task_kwargs['task_id']
             task_env = env_cls(*task_args, **task_kwargs)
             assert np.prod(task_env.observation_space.shape) <= self._max_obs_dim
+            task_env.seed(seed+sd_idx)
+            task_env.goal_space.seed(seed+sd_idx)
+            task_env.obj_and_goal_space.seed(seed+sd_idx)
             self._task_envs.append(task_env)
             self._task_names.append(task)
+            sd_idx += 1
         # If key (taskname) is in this `self._discrete_goals`, then this task are seen
         # to be using a discrete goal space. This wrapper will
         # set the property discrete_goal_space as True, update the goal_space
@@ -54,6 +63,8 @@ class MultiClassMultiTaskEnv(gym.Env):
         self._n_discrete_goals = len(task_env_cls_dict.keys())
         self._active_task = 0
         self._check_env_list()
+
+        self.np_random, _ = seeding.np_random(seed)
 
     @property
     def all_task_names(self):
@@ -123,7 +134,7 @@ class MultiClassMultiTaskEnv(gym.Env):
             self._active_task = task % len(self._task_envs)
 
     def sample_tasks(self, meta_batch_size):
-        tasks = np.random.randint(0, self.num_tasks, size=meta_batch_size).tolist()
+        tasks = self.np_random.randint(0, self.num_tasks, size=meta_batch_size).tolist()
 
         if self._sample_goals:
             goals = [

@@ -7,7 +7,7 @@ import numpy as np
 
 class MT10(MultiClassMultiTaskEnv, Benchmark):
 
-    def __init__(self, env_type="train", sample_all=False, task_name=None):
+    def __init__(self, seed=None, env_type="train", sample_all=False, task_name=None):
         del env_type
 
         if task_name is not None:
@@ -26,6 +26,7 @@ class MT10(MultiClassMultiTaskEnv, Benchmark):
         super().__init__(
             task_env_cls_dict=cls_dict,
             task_args_kwargs=args_kwargs,
+            seed=seed,
             sample_goals=False,
             obs_type='with_goal_id',
             sample_all=sample_all,)

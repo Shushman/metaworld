@@ -6,7 +6,7 @@ from metaworld.envs.mujoco.env_dict import HARD_MODE_ARGS_KWARGS, HARD_MODE_CLS_
 
 class ML45(MultiClassMultiTaskEnv, Benchmark):
 
-    def __init__(self, env_type='train', sample_all=False, task_name=None):
+    def __init__(self, seed=None, env_type='train', sample_all=False, task_name=None):
         assert env_type == 'train' or env_type == 'test'
 
         if task_name is not None:
@@ -25,6 +25,7 @@ class ML45(MultiClassMultiTaskEnv, Benchmark):
         super().__init__(
             task_env_cls_dict=cls_dict,
             task_args_kwargs=args_kwargs,
+            seed=seed,
             sample_goals=True,
             obs_type='plain',
             sample_all=sample_all)
