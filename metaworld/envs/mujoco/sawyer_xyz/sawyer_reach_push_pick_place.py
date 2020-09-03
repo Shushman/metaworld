@@ -44,10 +44,11 @@ class SawyerReachPushPickPlaceEnv(SawyerXYZEnv):
             raise NotImplementedError
 
         self.obj_init_angle = self.init_config['obj_init_angle']
-        self.obj_init_pos = self.init_config['obj_init_pos']
+        self.true_obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
         self.hand_init_pos = self.init_config['hand_init_pos']
 
         self.random_init = random_init
+        self.set_once = False
         self.liftThresh = liftThresh
         self.max_path_length = 150
 
@@ -123,12 +124,13 @@ class SawyerReachPushPickPlaceEnv(SawyerXYZEnv):
     def reset_model(self):
         self._reset_hand()
         self._state_goal = self.goal.copy()
-        self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
+        # self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
         self.obj_init_angle = self.init_config['obj_init_angle']
         self.objHeight = self.data.get_geom_xpos('objGeom')[2]
         self.heightTarget = self.objHeight + self.liftThresh
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            self.set_once = True
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,
@@ -143,8 +145,8 @@ class SawyerReachPushPickPlaceEnv(SawyerXYZEnv):
                 )
                 self._state_goal = goal_pos[3:]
             if self.task_type == 'push':
-                self._state_goal = np.concatenate((goal_pos[-3:-1], [self.obj_init_pos[-1]]))
-                self.obj_init_pos = np.concatenate((goal_pos[:2], [self.obj_init_pos[-1]]))
+                self._state_goal = np.concatenate((goal_pos[-3:-1], [self.true_obj_init_pos[-1]]))
+                self.obj_init_pos = np.concatenate((goal_pos[:2], [self.true_obj_init_pos[-1]]))
             else:
                 self._state_goal = goal_pos[-3:]
                 self.obj_init_pos = goal_pos[:3]
