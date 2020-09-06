@@ -28,12 +28,14 @@ class SawyerShelfPlaceEnv(SawyerXYZEnv):
             'obj_init_angle': 0.3,
             'hand_init_pos': np.array([0, 0.6, 0.2], dtype=np.float32),
         }
+
         self.goal = np.array([0., 0.85, 0.001], dtype=np.float32)
-        self.obj_init_pos = self.init_config['obj_init_pos']
+        self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
         self.obj_init_angle = self.init_config['obj_init_angle']
         self.hand_init_pos = self.init_config['hand_init_pos']
 
         self.random_init = random_init
+        self.set_once = False
         self.liftThresh = liftThresh
         self.max_path_length = 150
 
@@ -87,14 +89,15 @@ class SawyerShelfPlaceEnv(SawyerXYZEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self.sim.model.body_pos[self.model.body_name2id('shelf')] = self.goal.copy()
-        self._state_goal = self.sim.model.site_pos[self.model.site_name2id('goal')] + self.sim.model.body_pos[self.model.body_name2id('shelf')]
-        self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
+
         self.obj_init_angle = self.init_config['obj_init_angle']
         self.objHeight = self.data.get_geom_xpos('objGeom')[2]
         self.heightTarget = self.objHeight + self.liftThresh
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+
+            self.set_once = True
+            
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

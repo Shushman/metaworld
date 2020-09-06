@@ -12,6 +12,10 @@ class SawyerDoorCloseEnv(SawyerDoorEnv):
             'obj_init_pos': np.array([0.1, 0.95, 0.1], dtype=np.float32),
             'hand_init_pos': np.array([0, 0.6, 0.2], dtype=np.float32),
         }
+
+        self.random_init = random_init
+        self.set_once = False
+
         self.goal = np.array([0.2, 0.8, 0.15])
         self.obj_init_pos = self.init_config['obj_init_pos']
         self.obj_init_angle = self.init_config['obj_init_angle']
@@ -19,10 +23,11 @@ class SawyerDoorCloseEnv(SawyerDoorEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self._state_goal = self.goal.copy()
         self.objHeight = self.data.get_geom_xpos('handle')[2]
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            self._state_goal = self.goal.copy()
+            self.set_once = True
             obj_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

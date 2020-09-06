@@ -24,6 +24,7 @@ class SawyerBasketballEnv(SawyerXYZEnv):
         )
 
         self.random_init = random_init
+        self.set_once = False
 
         self.init_config = {
             'obj_init_angle': .3,
@@ -84,14 +85,19 @@ class SawyerBasketballEnv(SawyerXYZEnv):
     def reset_model(self):
         self._reset_hand()
 
-        basket_pos = self.goal.copy()
-        self.sim.model.body_pos[self.model.body_name2id('basket_goal')] = basket_pos
-        self._state_goal = self.data.site_xpos[self.model.site_name2id('goal')]
+        
 
         self.objHeight = self.data.get_geom_xpos('objGeom')[2]
         self.heightTarget = self.objHeight + self.liftThresh
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+
+            self.set_once = True
+
+            basket_pos = self.goal.copy()
+            self.sim.model.body_pos[self.model.body_name2id('basket_goal')] = basket_pos
+            self._state_goal = self.data.site_xpos[self.model.site_name2id('goal')]
+
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

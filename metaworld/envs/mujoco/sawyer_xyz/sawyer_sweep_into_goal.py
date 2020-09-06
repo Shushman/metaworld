@@ -27,11 +27,12 @@ class SawyerSweepIntoGoalEnv(SawyerXYZEnv):
             'hand_init_pos': np.array([0., .6, .2]),
         }
         self.goal = np.array([0., 0.84, 0.02])
-        self.obj_init_pos = self.init_config['obj_init_pos']
+        self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
         self.obj_init_angle = self.init_config['obj_init_angle']
         self.hand_init_pos = self.init_config['hand_init_pos']
 
         self.random_init = random_init
+        self.set_once = False
         self.max_path_length = 150
 
         self.obj_and_goal_space = Box(
@@ -83,13 +84,15 @@ class SawyerSweepIntoGoalEnv(SawyerXYZEnv):
         return [adjustedPos[0], adjustedPos[1],self.data.get_geom_xpos('objGeom')[-1]]
 
     def reset_model(self):
-        self._reset_hand()
-        self._state_goal = self.goal.copy()
-        self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
+        self._reset_hand()        
         self.obj_init_angle = self.init_config['obj_init_angle']
         self.objHeight = self.data.get_geom_xpos('objGeom')[2]
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+
+            self._state_goal = self.goal.copy()
+            self.set_once = True
+
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

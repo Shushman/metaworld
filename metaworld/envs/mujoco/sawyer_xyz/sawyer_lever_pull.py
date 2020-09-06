@@ -32,6 +32,7 @@ class SawyerLeverPullEnv(SawyerXYZEnv):
         goal_high = self.hand_high
 
         self.random_init = random_init
+        self.set_once = False
         self.max_path_length = 150
 
         self.obj_and_goal_space = Box(
@@ -74,10 +75,10 @@ class SawyerLeverPullEnv(SawyerXYZEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self._state_goal = self.goal.copy()
-        self.obj_init_pos = self.init_config['obj_init_pos']
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            
+            self.set_once = True
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

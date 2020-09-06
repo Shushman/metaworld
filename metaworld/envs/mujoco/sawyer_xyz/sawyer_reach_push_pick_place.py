@@ -123,13 +123,13 @@ class SawyerReachPushPickPlaceEnv(SawyerXYZEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self._state_goal = self.goal.copy()
         # self.obj_init_pos = self.adjust_initObjPos(self.init_config['obj_init_pos'])
         self.obj_init_angle = self.init_config['obj_init_angle']
         self.objHeight = self.data.get_geom_xpos('objGeom')[2]
         self.heightTarget = self.objHeight + self.liftThresh
 
         if self.random_init or self.set_once == False:
+            self._state_goal = self.goal.copy()
             self.set_once = True
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,

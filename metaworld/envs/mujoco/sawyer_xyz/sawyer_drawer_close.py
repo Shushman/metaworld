@@ -20,6 +20,7 @@ class SawyerDrawerCloseEnv(SawyerXYZEnv):
         )
 
         self.random_init = random_init
+        self.set_once = False
 
         self.init_config = {
             'obj_init_angle': np.array([0.3, ], dtype=np.float32),
@@ -82,10 +83,11 @@ class SawyerDrawerCloseEnv(SawyerXYZEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self._state_goal = self.goal.copy()
         self.objHeight = self.data.get_geom_xpos('handle')[2]
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            self._state_goal = self.goal.copy()
+            self.set_once = True
             obj_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

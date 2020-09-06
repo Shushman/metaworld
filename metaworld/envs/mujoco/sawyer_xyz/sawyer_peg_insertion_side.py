@@ -36,10 +36,9 @@ class SawyerPegInsertionSideEnv(SawyerXYZEnv):
         goal_high = self.hand_high
 
         self.random_init = random_init
+        self.set_once = False
         self.liftThresh = liftThresh
         self.max_path_length = 150
-
-        self.hand_init_pos = np.array(hand_init_pos)
 
         self.obj_and_goal_space = Box(
             np.hstack((obj_low, goal_low)),
@@ -85,12 +84,13 @@ class SawyerPegInsertionSideEnv(SawyerXYZEnv):
         self._reset_hand()
 
         self.sim.model.body_pos[self.model.body_name2id('box')] = self.goal.copy()
-        self._state_goal = self.sim.model.site_pos[self.model.site_name2id('hole')] + self.sim.model.body_pos[self.model.body_name2id('box')]
-        self.obj_init_pos = self.init_config['obj_init_pos']
-        self.objHeight = self.get_body_com('peg').copy()[2]
-        self.heightTarget = self.objHeight + self.liftThresh
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            self.set_once = True
+            
+            self._state_goal = self.sim.model.site_pos[self.model.site_name2id('hole')] + self.sim.model.body_pos[self.model.body_name2id('box')]
+            # self.obj_init_pos = self.init_config['obj_init_pos']
+
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,
@@ -107,7 +107,9 @@ class SawyerPegInsertionSideEnv(SawyerXYZEnv):
             self._state_goal = self.sim.model.site_pos[self.model.site_name2id('hole')] + self.sim.model.body_pos[self.model.body_name2id('box')]
 
         self._set_obj_xyz(self.obj_init_pos)
-        self.obj_init_pos = self.get_body_com('peg')
+        self.objHeight = self.get_body_com('peg').copy()[2]
+        self.heightTarget = self.objHeight + self.liftThresh
+        # self.obj_init_pos = self.get_body_com('peg')
         self.maxPlacingDist = np.linalg.norm(np.array([self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]) - np.array(self._state_goal)) + self.heightTarget
         self.target_reward = 1000*self.maxPlacingDist + 1000*2
         return self._get_obs()

@@ -21,6 +21,7 @@ class SawyerButtonPressTopdownEnv(SawyerXYZEnv):
         )
 
         self.random_init = random_init
+        self.set_once = False
 
         self.init_config = {
             'obj_init_pos': np.array([0, 0.8, 0.05], dtype=np.float32),
@@ -76,9 +77,10 @@ class SawyerButtonPressTopdownEnv(SawyerXYZEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self._state_goal = self.goal.copy()
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            self._state_goal = self.goal.copy()
+            self.set_once = True
             goal_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,

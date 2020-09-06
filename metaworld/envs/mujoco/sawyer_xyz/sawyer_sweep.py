@@ -22,6 +22,7 @@ class SawyerSweepEnv(SawyerXYZEnv):
         )
 
         self.random_init = random_init
+        self.set_once = False
 
         self.init_config = {
             'obj_init_pos':np.array([0., 0.6, 0.02]),
@@ -88,11 +89,13 @@ class SawyerSweepEnv(SawyerXYZEnv):
 
     def reset_model(self):
         self._reset_hand()
-        self._state_goal = self.goal.copy()
-        self.obj_init_pos = self.init_config['obj_init_pos']
         self.objHeight = self.data.get_geom_xpos('objGeom')[2]
 
-        if self.random_init:
+        if self.random_init or self.set_once == False:
+            
+            self._state_goal = self.goal.copy()
+            self.set_once = True
+
             obj_pos = self.np_random.uniform(
                 self.obj_and_goal_space.low,
                 self.obj_and_goal_space.high,
